@@ -1,0 +1,34 @@
+{
+  "cli": {
+    "version": ">= 13.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_BASE_URL": "http://localhost:9091"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_BASE_URL": "https://health-assistant-api-dy1i.onrender.com"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_BASE_URL": "https://health-assistant-api-dy1i.onrender.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

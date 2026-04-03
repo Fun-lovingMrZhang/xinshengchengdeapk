@@ -1,0 +1,521 @@
+import { StyleSheet, Platform } from 'react-native';
+import { Spacing, BorderRadius, Theme } from '@/constants/theme';
+
+export const createStyles = (theme: Theme) => {
+  return StyleSheet.create({
+    // 页面容器
+    container: {
+      flex: 1,
+      backgroundColor: '#FFFFFF',
+    },
+    // 顶部导航栏
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingTop: Platform.OS === 'ios' ? 50 : 40,
+      paddingBottom: 8,
+      backgroundColor: '#FFFFFF',
+    },
+    headerLeft: {
+      width: 40,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    headerTitle: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitleText: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: '#212121',
+    },
+    headerRight: {
+      width: 80,
+      alignItems: 'flex-end',
+      paddingRight: 4,
+    },
+    headerRightText: {
+      fontSize: 14,
+      color: '#333333',
+    },
+    headerSubtitle: {
+      alignItems: 'center',
+      paddingVertical: 8,
+      backgroundColor: '#FFFFFF',
+    },
+    headerSubtitleText: {
+      fontSize: 12,
+      color: '#999999',
+    },
+    // 搜索栏
+    searchContainer: {
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      backgroundColor: '#FFFFFF',
+    },
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 24,
+      paddingHorizontal: 16,
+      height: 48,
+      borderWidth: 1,
+      borderColor: '#E5E7EB',
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 12,
+      fontSize: 14,
+      color: '#212121',
+    },
+    // 主内容区
+    mainContent: {
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: '#FAFAFA',
+    },
+    // 左侧分类栏
+    categorySidebar: {
+      flex: 1,
+      backgroundColor: '#FFFFFF',
+    },
+    categoryItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 6,
+      marginHorizontal: 4,
+      marginVertical: 2,
+      borderRadius: 8,
+    },
+    categoryItemActive: {
+      backgroundColor: '#FEF2F2',
+    },
+    categoryIcon: {
+      marginRight: 6,
+    },
+    categoryText: {
+      fontSize: 12,
+      color: '#666666',
+      textAlign: 'left',
+    },
+    categoryTextActive: {
+      color: '#EF4444',
+      fontWeight: '600',
+      fontSize: 12,
+    },
+    // 右侧运动列表
+    exerciseListContainer: {
+      flex: 3,
+      backgroundColor: '#FAFAFA',
+    },
+    exerciseList: {
+      padding: 10,
+      paddingBottom: 100,
+    },
+    exerciseItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFFFFF',
+      borderRadius: 12,
+      padding: 10,
+      marginBottom: 10,
+      minHeight: 70,
+    },
+    exerciseIcon: {
+      width: 44,
+      height: 44,
+      borderRadius: 10,
+      backgroundColor: '#F0FDF4',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 10,
+    },
+    exerciseContent: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    exerciseName: {
+      fontSize: 16,
+      color: '#212121',
+      fontWeight: '600',
+      marginBottom: 4,
+    },
+    exerciseCalories: {
+      fontSize: 14,
+      color: '#FF9800',
+    },
+    addButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: '#E5E7EB',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    addedButton: {
+      backgroundColor: '#36D399',
+    },
+    noDataText: {
+      textAlign: 'center',
+      color: '#999999',
+      paddingVertical: 40,
+      fontSize: 15,
+    },
+    // 底部栏
+    bottomBar: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+      backgroundColor: '#FFFFFF',
+      borderTopWidth: 1,
+      borderTopColor: '#F0F0F0',
+    },
+    bottomLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    mascotContainer: {
+      width: 52,
+      height: 52,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 8,
+      position: 'relative',
+    },
+    mascotCircle: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: '#F0FDF4',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    mascotActive: {
+      backgroundColor: '#DCFCE7',
+    },
+    badgeContainer: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      backgroundColor: '#EF4444',
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    badgeText: {
+      color: '#FFFFFF',
+      fontSize: 11,
+      fontWeight: '700',
+    },
+    statsContainer: {
+      marginLeft: 4,
+    },
+    statsLabelRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    statsLabel: {
+      fontSize: 14,
+      color: '#333333',
+    },
+    statsCalories: {
+      fontSize: 16,
+      color: '#FF9800',
+      fontWeight: '700',
+      marginTop: 2,
+    },
+    expandIcon: {
+      marginLeft: 4,
+    },
+    completeButton: {
+      backgroundColor: '#36D399',
+      paddingVertical: 14,
+      paddingHorizontal: 40,
+      borderRadius: 28,
+      minWidth: 120,
+      alignItems: 'center',
+    },
+    completeButtonText: {
+      color: '#FFFFFF',
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    // 时长输入弹窗
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    durationModal: {
+      backgroundColor: '#FFFFFF',
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+    },
+    durationModalHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F0F0F0',
+    },
+    dateSelector: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#F5F5F5',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+    },
+    dateText: {
+      fontSize: 15,
+      color: '#212121',
+      marginLeft: 6,
+      marginRight: 4,
+    },
+    closeButton: {
+      width: 36,
+      height: 36,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F5F5',
+      borderRadius: 18,
+    },
+    exerciseInfoRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F0F0F0',
+    },
+    exerciseInfoIcon: {
+      width: 64,
+      height: 64,
+      borderRadius: 16,
+      backgroundColor: '#F0FDF4',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    exerciseInfoContent: {
+      flex: 1,
+    },
+    exerciseInfoName: {
+      fontSize: 18,
+      color: '#212121',
+      fontWeight: '600',
+      marginBottom: 6,
+    },
+    exerciseInfoCalories: {
+      fontSize: 15,
+      color: '#FF9800',
+    },
+    durationDisplay: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      justifyContent: 'center',
+      paddingVertical: 32,
+    },
+    durationNumber: {
+      fontSize: 64,
+      color: '#36D399',
+      fontWeight: '700',
+    },
+    durationUnit: {
+      fontSize: 18,
+      color: '#666666',
+      marginLeft: 8,
+    },
+    totalCaloriesRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 24,
+    },
+    totalCaloriesText: {
+      fontSize: 20,
+      color: '#FF9800',
+      fontWeight: '700',
+      marginLeft: 6,
+    },
+    // 数字键盘
+    numpad: {
+      paddingHorizontal: 20,
+    },
+    numpadRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    },
+    numpadKey: {
+      width: 80,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F5F5',
+      borderRadius: 16,
+    },
+    numpadKeyText: {
+      fontSize: 26,
+      color: '#212121',
+      fontWeight: '500',
+    },
+    numpadDelete: {
+      width: 80,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#F5F5F5',
+      borderRadius: 16,
+    },
+    saveButton: {
+      flex: 1,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#36D399',
+      borderRadius: 16,
+      marginLeft: 12,
+    },
+    saveButtonText: {
+      fontSize: 18,
+      color: '#FFFFFF',
+      fontWeight: '700',
+    },
+    // 已选运动面板
+    addedPanel: {
+      backgroundColor: '#FFFFFF',
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      maxHeight: 350,
+    },
+    addedPanelHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F0F0F0',
+    },
+    addedPanelTitle: {
+      fontSize: 16,
+      color: '#212121',
+      fontWeight: '600',
+    },
+    addedPanelClose: {
+      fontSize: 14,
+      color: '#999999',
+    },
+    addedPanelList: {
+      padding: 20,
+      maxHeight: 250,
+    },
+    addedExerciseItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: '#F5F5F5',
+    },
+    addedExerciseIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 12,
+      backgroundColor: '#F0FDF4',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 14,
+    },
+    addedExerciseContent: {
+      flex: 1,
+    },
+    addedExerciseName: {
+      fontSize: 16,
+      color: '#212121',
+      fontWeight: '600',
+    },
+    addedExerciseDetail: {
+      fontSize: 14,
+      color: '#999999',
+      marginTop: 4,
+    },
+    deleteButton: {
+      width: 40,
+      height: 40,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    // 自定义添加弹窗
+    customModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    customModalContent: {
+      backgroundColor: '#FFFFFF',
+      borderRadius: 20,
+      padding: 24,
+      width: '85%',
+      maxWidth: 340,
+    },
+    customModalTitle: {
+      fontSize: 18,
+      color: '#212121',
+      fontWeight: '700',
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    customInput: {
+      backgroundColor: '#F5F5F5',
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      marginBottom: 12,
+      fontSize: 15,
+      color: '#212121',
+    },
+    customInputRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    customInputHalf: {
+      flex: 1,
+      backgroundColor: '#F5F5F5',
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      marginBottom: 12,
+      fontSize: 15,
+      color: '#212121',
+    },
+    customCancelButton: {
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    customCancelText: {
+      fontSize: 15,
+      color: '#999999',
+    },
+  });
+};
