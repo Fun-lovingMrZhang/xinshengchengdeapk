@@ -46,8 +46,16 @@ jobs:
       working-directory: ./client/android
       run: chmod +x gradlew
       
+    - name: Prebuild Expo native code
+      working-directory: ./client
+      env:
+        EXPO_PUBLIC_BACKEND_BASE_URL: https://health-assistant-api-dy1i.onrender.com
+      run: npx expo prebuild --clean --platform android
+      
     - name: Build Release APK
       working-directory: ./client/android
+      env:
+        EXPO_PUBLIC_BACKEND_BASE_URL: https://health-assistant-api-dy1i.onrender.com
       run: ./gradlew assembleRelease --no-daemon
       
     - name: Upload APK

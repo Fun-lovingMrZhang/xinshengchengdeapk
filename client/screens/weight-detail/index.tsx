@@ -14,6 +14,7 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { createStyles } from './styles';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { useFocusEffect } from 'expo-router';
+import { getBackendBaseUrl } from '@/utils/api';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -71,7 +72,7 @@ export default function WeightDetailScreen() {
   // 从后端获取用户数据
   const fetchUserData = useCallback(async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const res = await fetch(`${baseUrl}/api/v1/users/1`);
       const user = await res.json();
       

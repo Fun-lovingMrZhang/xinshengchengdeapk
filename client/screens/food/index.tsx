@@ -20,6 +20,7 @@ import * as Haptics from 'expo-haptics';
 import { createStyles } from './styles';
 import { useFocusEffect } from 'expo-router';
 import { useFoodRecords } from '@/contexts/FoodRecordContext';
+import { getBackendBaseUrl } from '@/utils/api';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -173,7 +174,7 @@ export default function FoodScreen() {
 
   const fetchPresetFoods = async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const res = await fetch(`${baseUrl}/api/v1/foods/presets`);
       const data = await res.json();
       if (data && data.length > 0) {

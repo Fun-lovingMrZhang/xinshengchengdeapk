@@ -17,8 +17,7 @@ import { createStyles } from './styles';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const USER_ID = 1;
+import { getBackendBaseUrl } from '@/utils/api';const USER_ID = 1;
 const WATER_GOAL_KEY = '@water_goal';
 
 interface UserPlanData {
@@ -50,7 +49,7 @@ export default function PlanSettingsScreen() {
   const loadUserData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       
       // 获取用户数据
       const userRes = await fetch(`${baseUrl}/api/v1/users/${USER_ID}`);
@@ -102,7 +101,7 @@ export default function PlanSettingsScreen() {
 
     setIsSaving(true);
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       
       // 构建更新数据
       const updateData: Record<string, number | undefined> = {};

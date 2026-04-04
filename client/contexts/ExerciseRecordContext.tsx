@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getBackendBaseUrl } from '@/utils/api';
 
 // 运动记录类型
 export interface ExerciseRecord {
@@ -66,7 +67,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
   // 从后端获取今日运动记录
   const refreshTodayRecords = useCallback(async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const today = getTodayString();
       const response = await fetch(`${baseUrl}/api/v1/exercises/records?date=${today}`);
       
@@ -99,7 +100,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
   // 获取所有运动记录（最近30天）
   const refreshAllRecords = useCallback(async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const today = new Date();
       const thirtyDaysAgo = new Date(today);
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -136,7 +137,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
 
   // 添加运动记录
   const addRecord = useCallback(async (record: Omit<ExerciseRecord, 'id'>): Promise<ExerciseRecord> => {
-    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+    const baseUrl = getBackendBaseUrl();
     const response = await fetch(`${baseUrl}/api/v1/exercises/records`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -171,7 +172,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
 
   // 更新运动记录
   const updateRecord = useCallback(async (id: number, record: Partial<ExerciseRecord>) => {
-    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+    const baseUrl = getBackendBaseUrl();
     const response = await fetch(`${baseUrl}/api/v1/exercises/records/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -202,7 +203,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
 
   // 删除运动记录
   const deleteRecord = useCallback(async (id: number) => {
-    const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+    const baseUrl = getBackendBaseUrl();
     const response = await fetch(`${baseUrl}/api/v1/exercises/records/${id}`, {
       method: 'DELETE',
     });
@@ -217,7 +218,7 @@ export function ExerciseProvider({ children }: { children: React.ReactNode }) {
   // 加载预设运动
   const loadPresetExercises = useCallback(async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const response = await fetch(`${baseUrl}/api/v1/exercises/presets`);
       
       if (response.ok) {

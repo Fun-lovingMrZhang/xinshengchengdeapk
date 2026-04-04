@@ -18,6 +18,7 @@ import { createStyles } from './styles';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getBackendBaseUrl } from '@/utils/api';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Spacing, BorderRadius } from '@/constants/theme';
 
@@ -153,7 +154,7 @@ export default function PlanScreen() {
       // 并行加载提醒设置和用户数据
       const [savedSettings, userRes] = await Promise.all([
         AsyncStorage.getItem(REMINDER_SETTINGS_KEY),
-        fetch(`${process.env.EXPO_PUBLIC_BACKEND_BASE_URL}/api/v1/users/${USER_ID}`).then(r => r.json()),
+        fetch(`${getBackendBaseUrl()}/api/v1/users/${USER_ID}`).then(r => r.json()),
       ]);
 
       // 恢复提醒开关状态和时间

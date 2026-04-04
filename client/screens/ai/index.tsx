@@ -25,6 +25,7 @@ import { useSafeRouter, useSafeSearchParams } from '@/hooks/useSafeRouter';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createFormDataFile } from '@/utils';
 import * as ImagePicker from 'expo-image-picker';
+import { getBackendBaseUrl } from '@/utils/api';
 
 interface Message {
   id: string;
@@ -156,7 +157,7 @@ export default function AIScreen() {
     setIsTyping(true);
 
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const formData = new FormData();
       const file = await createFormDataFile(imageUri, 'food.jpg', 'image/jpeg');
       formData.append('image', file as any);
@@ -371,7 +372,7 @@ export default function AIScreen() {
     setIsTyping(true);
 
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const conversationHistory = messages
         .filter(m => m.type === 'user' || m.type === 'ai')
         .map(m => ({

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getBackendBaseUrl } from '@/utils/api';
 
 interface FoodRecord {
   id: number;
@@ -82,7 +83,7 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
   const refreshTodayRecords = useCallback(async () => {
     try {
       const today = getTodayString();
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const res = await fetch(`${baseUrl}/api/v1/food-records?date=${today}`);
       const data = await res.json();
       const records: FoodRecord[] = Array.isArray(data) ? data : [];
@@ -115,7 +116,7 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
   // 获取所有记录
   const refreshAllRecords = useCallback(async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const res = await fetch(`${baseUrl}/api/v1/food-records`);
       const data = await res.json();
       const records: FoodRecord[] = Array.isArray(data) ? data : [];
@@ -157,7 +158,7 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
   // 添加记录
   const addRecord = useCallback(async (recordData: Omit<FoodRecord, 'id' | 'created_at'>) => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const res = await fetch(`${baseUrl}/api/v1/food-records`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -207,7 +208,7 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
   // 删除记录
   const deleteRecord = useCallback(async (id: number) => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       await fetch(`${baseUrl}/api/v1/food-records/${id}`, {
         method: 'DELETE',
       });

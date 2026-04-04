@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { createStyles } from './styles';
 import { useFocusEffect } from 'expo-router';
+import { getBackendBaseUrl } from '@/utils/api';
 
 // 活动水平配置
 const ACTIVITY_LEVELS = [
@@ -95,7 +96,7 @@ export default function ProfileScreen() {
 
   const fetchUserData = async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       
       // 获取用户信息（使用单个用户接口）
       const userRes = await fetch(`${baseUrl}/api/v1/users/1`);
@@ -190,7 +191,7 @@ export default function ProfileScreen() {
 
     // 保存到后端
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       await fetch(`${baseUrl}/api/v1/users/1`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -250,7 +251,7 @@ export default function ProfileScreen() {
 
     // 保存到后端
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       const response = await fetch(`${baseUrl}/api/v1/users/1`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },

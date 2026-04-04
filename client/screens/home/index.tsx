@@ -12,6 +12,7 @@ import { useFoodRecords } from '@/contexts/FoodRecordContext';
 import { useExerciseRecords } from '@/contexts/ExerciseRecordContext';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { getBackendBaseUrl } from '@/utils/api';
 
 // 活动系数配置
 const ACTIVITY_COEFFICIENTS: Record<string, number> = {
@@ -104,7 +105,7 @@ export default function HomeScreen() {
 
   const fetchUserData = async () => {
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       
       // 获取单个用户（使用 /users/1 接口）
       const userRes = await fetch(`${baseUrl}/api/v1/users/1`);
@@ -247,7 +248,7 @@ export default function HomeScreen() {
 
     // 可选：保存到后端
     try {
-      const baseUrl = process.env.EXPO_PUBLIC_BACKEND_BASE_URL;
+      const baseUrl = getBackendBaseUrl();
       await fetch(`${baseUrl}/api/v1/users/1`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
