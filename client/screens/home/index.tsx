@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { ScrollView, View, TouchableOpacity, Text, Dimensions, Modal, Alert } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { Screen } from '@/components/Screen';
+import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -292,7 +292,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <Screen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
+    <SwipeableTabScreen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           {/* 页面标题行 */}
@@ -633,6 +633,6 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </SwipeableTabScreen>
   );
 }

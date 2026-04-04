@@ -10,7 +10,7 @@ import {
   UIManager,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { Screen } from '@/components/Screen';
+import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { createStyles } from './styles';
@@ -265,7 +265,7 @@ export default function StatsScreen() {
   };
 
   return (
-    <Screen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
+    <SwipeableTabScreen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
       <View style={styles.container}>
         <View style={styles.headerSection}>
           <View style={styles.monthSelectorRow}>
@@ -411,6 +411,6 @@ export default function StatsScreen() {
           </View>
         </ScrollView>
       </View>
-    </Screen>
+    </SwipeableTabScreen>
   );
 }

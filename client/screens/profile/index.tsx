@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { View, TouchableOpacity, ScrollView, Text, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { Screen } from '@/components/Screen';
+import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -378,7 +378,7 @@ export default function ProfileScreen() {
   ];
 
   return (
-    <Screen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
+    <SwipeableTabScreen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
       <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           {/* 用户信息卡片 */}
@@ -889,6 +889,6 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
-    </Screen>
+    </SwipeableTabScreen>
   );
 }

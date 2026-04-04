@@ -13,7 +13,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { Screen } from '@/components/Screen';
+import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
 import { ThemedText } from '@/components/ThemedText';
 import { FontAwesome6 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -420,7 +420,7 @@ export default function FoodScreen() {
   );
 
   return (
-    <Screen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
+    <SwipeableTabScreen backgroundColor={theme.backgroundRoot} statusBarStyle={isDark ? 'light' : 'dark'}>
       <View style={styles.container}>
         <View style={styles.content}>
           {/* 搜索栏 + 自定义按钮 */}
@@ -756,6 +756,6 @@ export default function FoodScreen() {
           </View>
         </Modal>
       </View>
-    </Screen>
+    </SwipeableTabScreen>
   );
 }
