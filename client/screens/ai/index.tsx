@@ -187,14 +187,24 @@ export default function AIScreen() {
           if (data === '[DONE]') break;
           try {
             const parsed = JSON.parse(data);
-            if (parsed.content) {
+            // 确保 content 是字符串类型
+            if (parsed.content && typeof parsed.content === 'string') {
               fullContent += parsed.content;
               setMessages(prev => prev.map(msg => 
                 msg.id === aiMessageId ? { ...msg, content: fullContent } : msg
               ));
               scrollToBottom();
+            } else if (parsed.content) {
+              // 如果 content 不是字符串，记录警告
+              console.warn('[AI Chat] content 不是字符串:', typeof parsed.content, parsed.content);
             }
-          } catch (e) {}
+            // 处理可能的错误响应
+            if (parsed.error) {
+              console.error('[AI Chat] API 错误:', parsed.error);
+            }
+          } catch (e) {
+            console.error('[AI Chat] JSON 解析错误:', e);
+          }
         }
       }
 
@@ -407,14 +417,24 @@ export default function AIScreen() {
           if (data === '[DONE]') break;
           try {
             const parsed = JSON.parse(data);
-            if (parsed.content) {
+            // 确保 content 是字符串类型
+            if (parsed.content && typeof parsed.content === 'string') {
               fullContent += parsed.content;
               setMessages(prev => prev.map(msg => 
                 msg.id === aiMessageId ? { ...msg, content: fullContent } : msg
               ));
               scrollToBottom();
+            } else if (parsed.content) {
+              // 如果 content 不是字符串，记录警告
+              console.warn('[AI Chat] content 不是字符串:', typeof parsed.content, parsed.content);
             }
-          } catch (e) {}
+            // 处理可能的错误响应
+            if (parsed.error) {
+              console.error('[AI Chat] API 错误:', parsed.error);
+            }
+          } catch (e) {
+            console.error('[AI Chat] JSON 解析错误:', e);
+          }
         }
       }
 

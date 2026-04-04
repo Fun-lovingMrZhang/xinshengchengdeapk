@@ -97,12 +97,23 @@ async function* streamChatAPI(
         }
         try {
           const parsed = JSON.parse(data);
-          const content = parsed.choices?.[0]?.delta?.content;
-          if (content) {
-            yield content;
+          // 调试日志：查看火山引擎 API 返回的实际格式
+          console.log('[火山引擎响应]', JSON.stringify(parsed));
+          const delta = parsed.choices?.[0]?.delta;
+          // 检查 delta 的结构
+          if (delta && typeof delta === 'object') {
+            const content = delta.content;
+            if (content && typeof content === 'string') {
+              yield content;
+            } else if (delta.reasoning_content) {
+              // 某些模型可能返回 reasoning_content 字段
+              yield delta.reasoning_content;
+            } else {
+              console.log('[Delta 结构]', JSON.stringify(delta));
+            }
           }
         } catch (e) {
-          // 忽略解析错误
+          console.error('[解析错误]', e);
         }
       }
     }
