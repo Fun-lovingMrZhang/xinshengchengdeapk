@@ -1,0 +1,59 @@
+- workflow: Build-iOS
+  steps:
+    - script:
+        name: Checkout
+        script: |
+          echo "Checking out code..."
+
+    - script:
+        name: Cache Restore
+        script: |
+          cache restore
+
+    - script:
+        name: Install Dependencies
+        script: |
+          cd client
+          npm install
+
+    - script:
+        name: Build iOS
+        script: |
+          cd client/ios
+          xcodebuild build -workspace *.xcworkspace -scheme * -configuration Debug CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+- workflow: Build-Android
+  steps:
+    - script:
+        name: Checkout
+        script: |
+          echo "Checking out code..."
+
+    - script:
+        name: Cache Restore
+        script: |
+          cache restore
+
+    - script:
+        name: Install Dependencies
+        script: |
+          cd client
+          npm install
+          cd android
+          chmod +x gradlew
+
+    - script:
+        name: Build Android APK
+        script: |
+          cd client/android
+          ./gradlew assembleDebug
+
+    - script:
+        name: Export APK
+        script: |
+          echo "Build completed"
+
+    - script:
+        name: Cache Save
+        script: |
+          cache save
