@@ -17,6 +17,9 @@ export default function TabLayout() {
   const router = useSafeRouter();
   const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
+  // 确保 bottom inset 有最小值，防止 Tab 栏高度过小
+  const safeBottom = Math.max(insets.bottom, 0);
+
   return (
     <Tabs
       screenOptions={{
@@ -24,19 +27,14 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: currentTheme.backgroundDefault,
           borderTopColor: currentTheme.border,
-          height: Platform.OS === 'web' ? 65 : 55 + insets.bottom,
-          paddingBottom: Platform.OS === 'web' ? 0 : insets.bottom,
+          // 使用更可靠的高度计算
+          height: Platform.OS === 'web' ? 65 : 60 + safeBottom,
+          paddingBottom: Platform.OS === 'web' ? 0 : safeBottom,
           borderTopWidth: 1,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
         },
         tabBarActiveTintColor: currentTheme.primary,
         tabBarInactiveTintColor: currentTheme.textMuted,
         tabBarItemStyle: {
-          height: Platform.OS === 'web' ? 65 : undefined,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
