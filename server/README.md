@@ -29,9 +29,12 @@ VOLCENGINE_VISION_MODEL=doubao-seed-1-6-vision-250815
 ### 火山引擎（豆包大模型）
 
 1. 登录 [火山引擎控制台](https://console.volcengine.com/ark)
-2. 左侧菜单选择 **模型推理** → **推理服务**
-3. 创建或选择接入点
-4. 在 **API Key 管理** 中获取密钥
+2. 左侧菜单选择 **模型推理** → **接入点管理**
+3. 点击 **创建接入点**：
+   - 聊天模型：选择 `doubao-1.5-pro`（或其他对话模型）
+   - 视觉模型：选择 `doubao-seed-1.6-vision`（支持图片识别）
+4. 复制接入点 ID（格式如 `ep-20260404113823-wx898`）
+5. 在 **API Key 管理** 中获取密钥
 
 ### Supabase 数据库
 

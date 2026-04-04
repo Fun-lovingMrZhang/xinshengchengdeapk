@@ -5,10 +5,12 @@ import multer from 'multer';
 const router = express.Router();
 
 // 火山引擎 API 配置
+// 注意：VOLCENGINE_CHAT_MODEL 和 VOLCENGINE_VISION_MODEL 应填入接入点 ID（如 ep-20260404113823-wx898）
+// 获取方式：火山引擎控制台 -> 模型推理 -> 接入点管理
 const VOLCENGINE_API_URL = process.env.VOLCENGINE_API_URL || 'https://ark.cn-beijing.volces.com/api/v3';
 const VOLCENGINE_API_KEY = process.env.VOLCENGINE_API_KEY || '';
-const VOLCENGINE_CHAT_MODEL = process.env.VOLCENGINE_CHAT_MODEL || 'doubao-1-5-pro-32k-250115';
-const VOLCENGINE_VISION_MODEL = process.env.VOLCENGINE_VISION_MODEL || 'doubao-seed-1-6-vision-250815';
+const VOLCENGINE_CHAT_MODEL = process.env.VOLCENGINE_CHAT_MODEL || '';
+const VOLCENGINE_VISION_MODEL = process.env.VOLCENGINE_VISION_MODEL || '';
 
 // 配置 multer 用于接收图片
 const upload = multer({
@@ -108,9 +110,10 @@ async function* streamChatAPI(
 }
 
 // 调用火山引擎 Responses API - 用于视觉识别
+// 文档：https://www.volcengine.com/docs/82379/1298454
 async function callVisionAPI(
   imageUrl: string,
-  systemPrompt: string
+  prompt: string
 ): Promise<string> {
   const response = await fetch(`${VOLCENGINE_API_URL}/responses`, {
     method: 'POST',
@@ -122,15 +125,6 @@ async function callVisionAPI(
       model: VOLCENGINE_VISION_MODEL,
       input: [
         {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text: systemPrompt,
-            },
-          ],
-        },
-        {
           role: 'user',
           content: [
             {
@@ -139,7 +133,7 @@ async function callVisionAPI(
             },
             {
               type: 'input_text',
-              text: '请识别这张图片中的食物，并估算营养成分。',
+              text: prompt,
             },
           ],
         },
@@ -153,8 +147,20 @@ async function callVisionAPI(
     throw new Error(`视觉 API 调用失败: ${response.status}`);
   }
 
-  const data = await response.json();
-  return data.output || data.choices?.[0]?.message?.content || '';
+  const data = await response.json() as { output?: string; choices?: Array<{ message?: { content?: string } }> };
+  
+  // Responses API 返回格式：{ output: "回复内容" }
+  // 或者可能是：{ choices: [{ message: { content: "..." } }] }
+  if (data.output) {
+    return data.output;
+  }
+  
+  if (data.choices?.[0]?.message?.content) {
+    return data.choices[0].message.content;
+  }
+  
+  console.error('未知的响应格式:', JSON.stringify(data));
+  throw new Error('未知的响应格式');
 }
 
 // 食物识别接口（使用 Responses API）
@@ -164,12 +170,20 @@ router.post('/recognize-food', upload.single('image'), async (req: Request, res:
       return res.status(400).json({ error: '请上传图片' });
     }
 
+    if (!VOLCENGINE_API_KEY) {
+      return res.status(500).json({ error: '服务器未配置 API Key' });
+    }
+
+    if (!VOLCENGINE_VISION_MODEL) {
+      return res.status(500).json({ error: '服务器未配置视觉模型接入点' });
+    }
+
     // 设置 SSE 响应头
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-store, no-transform, must-revalidate');
     res.setHeader('Connection', 'keep-alive');
 
-    // 将图片转换为 base64
+    // 将图片转换为 base64 Data URI
     const imageBuffer = req.file.buffer;
     const base64Image = imageBuffer.toString('base64');
     const mimeType = req.file.mimetype;
@@ -178,12 +192,8 @@ router.post('/recognize-food', upload.single('image'), async (req: Request, res:
     // 调用视觉模型
     const result = await callVisionAPI(dataUri, FOOD_RECOGNITION_SYSTEM_PROMPT);
 
-    // 模拟流式输出（将结果分块发送）
-    const chunks = result.split('');
-    let currentContent = '';
-    
-    for (const char of chunks) {
-      currentContent += char;
+    // 模拟流式输出（将结果逐字符发送，提供打字机效果）
+    for (const char of result) {
       res.write(`data: ${JSON.stringify({ content: char })}\n\n`);
     }
 
@@ -205,6 +215,14 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     if (!conversationHistory || !Array.isArray(conversationHistory)) {
       return res.status(400).json({ error: '请提供对话历史' });
+    }
+
+    if (!VOLCENGINE_API_KEY) {
+      return res.status(500).json({ error: '服务器未配置 API Key' });
+    }
+
+    if (!VOLCENGINE_CHAT_MODEL) {
+      return res.status(500).json({ error: '服务器未配置聊天模型接入点' });
     }
 
     // 设置 SSE 响应头
