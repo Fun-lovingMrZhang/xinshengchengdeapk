@@ -25,6 +25,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       },
       "backendBaseUrl": backendBaseUrl
     },
+    "updates": {
+      "url": "https://u.expo.dev/" + easProjectId
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.healthassistant.app"
