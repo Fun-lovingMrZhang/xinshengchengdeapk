@@ -158,16 +158,45 @@ async function callVisionAPI(
     throw new Error(`视觉 API 调用失败: ${response.status}`);
   }
 
-  const data = await response.json() as { output?: string; choices?: Array<{ message?: { content?: string } }> };
-  
-  // Responses API 返回格式：{ output: "回复内容" }
-  // 或者可能是：{ choices: [{ message: { content: "..." } }] }
-  if (data.output) {
-    return data.output;
+  const data = await response.json() as {
+    output?: Array<{
+      type?: string;
+      role?: string;
+      content?: Array<{ type?: string; text?: string }>;
+      status?: string;
+    }>;
+    content?: {
+      type?: string;
+      role?: string;
+      content?: Array<{ type?: string; text?: string }>;
+      status?: string;
+    };
+  };
+
+  console.log('[Vision API 响应]', JSON.stringify(data, null, 2));
+
+  // Responses API 返回格式：{ output: [{ type: "message", content: [{ type: "output_text", text: "..." }] }] }
+  if (data.output && Array.isArray(data.output)) {
+    // 找到 type: "message" 的项
+    const messageItem = data.output.find((item) => item.type === 'message');
+    if (messageItem?.content && Array.isArray(messageItem.content)) {
+      const textContent = messageItem.content.find(
+        (item) => item.type === 'output_text' && item.text
+      );
+      if (textContent?.text) {
+        return textContent.text;
+      }
+    }
   }
   
-  if (data.choices?.[0]?.message?.content) {
-    return data.choices[0].message.content;
+  // 兼容其他格式：{ content: { content: [{ type: "output_text", text: "..." }] } }
+  if (data.content?.content && Array.isArray(data.content.content)) {
+    const textContent = data.content.content.find(
+      (item) => item.type === 'output_text' && item.text
+    );
+    if (textContent?.text) {
+      return textContent.text;
+    }
   }
   
   console.error('未知的响应格式:', JSON.stringify(data));
