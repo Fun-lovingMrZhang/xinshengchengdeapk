@@ -52,7 +52,7 @@ import {
  * - 行为：若子树不包含 ScrollView/FlatList/SectionList，则外层自动使用 ScrollView，
  *        自动处理键盘遮挡，底部安全区会自动加在内容末尾。
  */
-interface ScreenProps {
+export interface ScreenProps {
   children: React.ReactNode;
   /** 背景色，默认 #fff */
   backgroundColor?: string;
