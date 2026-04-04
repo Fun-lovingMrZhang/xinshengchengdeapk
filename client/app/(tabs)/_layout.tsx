@@ -5,20 +5,25 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useSafeRouter } from '@/hooks/useSafeRouter';
 import { useMemo } from 'react';
+import { Colors } from '@/constants/theme';
+
+// 默认主题，防止 theme 为 undefined 时崩溃
+const defaultTheme = Colors.light;
 
 export default function TabLayout() {
   const { theme, isDark } = useTheme();
+  const currentTheme = theme || defaultTheme;
   const insets = useSafeAreaInsets();
   const router = useSafeRouter();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const styles = useMemo(() => createStyles(currentTheme), [currentTheme]);
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.backgroundDefault,
-          borderTopColor: theme.border,
+          backgroundColor: currentTheme.backgroundDefault,
+          borderTopColor: currentTheme.border,
           height: Platform.OS === 'web' ? 65 : 55 + insets.bottom,
           paddingBottom: Platform.OS === 'web' ? 0 : insets.bottom,
           borderTopWidth: 1,
@@ -28,8 +33,8 @@ export default function TabLayout() {
           shadowOpacity: 0.1,
           shadowRadius: 8,
         },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.textMuted,
+        tabBarActiveTintColor: currentTheme.primary,
+        tabBarInactiveTintColor: currentTheme.textMuted,
         tabBarItemStyle: {
           height: Platform.OS === 'web' ? 65 : undefined,
           paddingTop: 8,
