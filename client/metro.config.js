@@ -1,8 +1,20 @@
+const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const connect = require('connect');
 
-const config = getDefaultConfig(__dirname);
+// 明确指定项目根目录为 client 目录
+const projectRoot = __dirname;
+// monorepo 根目录
+const workspaceRoot = path.resolve(projectRoot, '..');
+
+const config = getDefaultConfig(projectRoot);
+
+// 添加 monorepo 支持 - 确保 Metro 能找到正确的 node_modules
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+];
 
 // 安全地获取 Expo 的默认排除列表
 const existingBlockList = [].concat(config.resolver.blockList || []);
