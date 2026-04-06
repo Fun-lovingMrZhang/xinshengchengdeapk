@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { View, TouchableOpacity, ScrollView, Text, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Text, Modal, TextInput, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
 import { ThemedText } from '@/components/ThemedText';
@@ -8,6 +8,8 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { createStyles } from './styles';
 import { useFocusEffect } from 'expo-router';
 import { getBackendBaseUrl } from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSafeRouter } from '@/hooks/useSafeRouter';
 
 // 活动水平配置
 const ACTIVITY_LEVELS = [
@@ -50,6 +52,8 @@ interface Stats {
 export default function ProfileScreen() {
   const { theme, isDark } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const { user: authUser, isAuthenticated, logout } = useAuth();
+  const router = useSafeRouter();
 
   const [userData, setUserData] = useState<UserData>({
     name: '用户',
@@ -372,11 +376,37 @@ export default function ProfileScreen() {
     return config?.color || '#22C55E';
   };
 
+  const handleLogout = () => {
+    Alert.alert(
+      '退出登录',
+      '确定要退出当前账号吗？',
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '确定',
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/login');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   const menuItems = [
     { icon: 'gear', label: '设置', color: '#6B7280', onPress: () => {} },
     { icon: 'crown', label: '会员中心', color: '#F59E0B', onPress: () => {} },
     { icon: 'circle-question', label: '帮助与反馈', color: '#3B82F6', onPress: () => {} },
     { icon: 'info-circle', label: '关于我们', color: '#8B5CF6', onPress: () => {} },
+    // 登录/登出按钮
+    isAuthenticated
+      ? { icon: 'right-from-bracket', label: '退出登录', color: '#EF4444', onPress: handleLogout }
+      : { icon: 'right-to-bracket', label: '登录 / 注册', color: '#22C55E', onPress: handleLogin },
   ];
 
   return (

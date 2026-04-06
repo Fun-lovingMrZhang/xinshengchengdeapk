@@ -6,6 +6,7 @@ import foodsRouter from "./routes/foods.js";
 import exercisesRouter from "./routes/exercises.js";
 import foodRecordsRouter from "./routes/food-records.js";
 import aiRouter from "./routes/ai.js";
+import authRouter from "./routes/auth.js";
 import { seedPresetData } from "./lib/seed-data.js";
 
 const app = express();
@@ -23,6 +24,7 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/foods', foodsRouter);
 app.use('/api/v1/exercises', exercisesRouter);

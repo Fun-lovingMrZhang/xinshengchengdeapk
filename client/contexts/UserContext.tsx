@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { User } from '@/types';
 import { getAllUsers, createUser as apiCreateUser, updateUser as apiUpdateUser, deleteUser as apiDeleteUser } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const CURRENT_USER_KEY = 'currentUserId';
 
@@ -22,12 +23,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user: authUser, isAuthenticated } = useAuth();
 
   const refreshUsers = useCallback(async () => {
     setLoading(true);
     try {
       const allUsers = await getAllUsers();
       setUsers(allUsers);
+
+      // 如果用户已登录，优先使用 AuthContext 中的用户
+      if (isAuthenticated && authUser) {
+        const loggedInUser = allUsers.find((u: User) => u.id === authUser.id);
+        if (loggedInUser) {
+          setCurrentUserState(loggedInUser);
+          await AsyncStorage.setItem(CURRENT_USER_KEY, loggedInUser.id.toString());
+          return;
+        }
+      }
 
       // 从 AsyncStorage 恢复当前用户
       const savedUserId = await AsyncStorage.getItem(CURRENT_USER_KEY);
@@ -48,7 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, authUser]);
 
   useEffect(() => {
     refreshUsers();
