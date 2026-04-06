@@ -66,9 +66,10 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
   const todayStats: DailyStats | null = todayRecords.length > 0 ? {
     date: getTodayString(),
     totalCalories: todayRecords.reduce((sum, r) => sum + r.calories, 0),
-    totalProtein: todayRecords.reduce((sum, r) => sum + r.protein, 0),
-    totalCarbs: todayRecords.reduce((sum, r) => sum + r.carbs, 0),
-    totalFat: todayRecords.reduce((sum, r) => sum + r.fat, 0),
+    // 保留一位小数，避免浮点数精度问题
+    totalProtein: Math.round(todayRecords.reduce((sum, r) => sum + r.protein, 0) * 10) / 10,
+    totalCarbs: Math.round(todayRecords.reduce((sum, r) => sum + r.carbs, 0) * 10) / 10,
+    totalFat: Math.round(todayRecords.reduce((sum, r) => sum + r.fat, 0) * 10) / 10,
     records: todayRecords,
   } : {
     date: getTodayString(),

@@ -135,9 +135,10 @@ export default function ProfileScreen() {
       const today = new Date().toISOString().split('T')[0];
       const todayFoods = foodRecords.filter((r: any) => (r.record_date || r.date) === today);
       
-      const todayProtein = todayFoods.reduce((sum: number, r: any) => sum + (r.protein || 0), 0);
-      const todayCarbs = todayFoods.reduce((sum: number, r: any) => sum + (r.carbs || 0), 0);
-      const todayFat = todayFoods.reduce((sum: number, r: any) => sum + (r.fat || 0), 0);
+      // 保留一位小数，避免浮点数精度问题
+      const todayProtein = Math.round(todayFoods.reduce((sum: number, r: any) => sum + (r.protein || 0), 0) * 10) / 10;
+      const todayCarbs = Math.round(todayFoods.reduce((sum: number, r: any) => sum + (r.carbs || 0), 0) * 10) / 10;
+      const todayFat = Math.round(todayFoods.reduce((sum: number, r: any) => sum + (r.fat || 0), 0) * 10) / 10;
       
       setTodayIntake({
         protein: todayProtein,

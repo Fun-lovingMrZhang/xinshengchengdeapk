@@ -90,10 +90,11 @@ const parseFoodDataFromAI = (content: string): RecognizedFood[] => {
         return data.foods.map((food: any) => ({
           name: food.name || '未知食物',
           weight: food.weight || 100,
-          calories: food.calories || 0,
-          protein: food.protein || 0,
-          carbs: food.carbs || 0,
-          fat: food.fat || 0,
+          calories: Math.round(food.calories || 0),
+          // 保留一位小数，避免浮点数精度问题
+          protein: Math.round((food.protein || 0) * 10) / 10,
+          carbs: Math.round((food.carbs || 0) * 10) / 10,
+          fat: Math.round((food.fat || 0) * 10) / 10,
           mealType: data.mealType || '午餐',
         }));
       }
