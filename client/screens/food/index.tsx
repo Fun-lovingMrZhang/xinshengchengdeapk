@@ -271,47 +271,86 @@ export default function FoodScreen() {
     }
   };
 
-  const handleAddCustomFood = () => {
+  const handleAddCustomFood = async () => {
     if (!customFoodName.trim()) return;
 
-    // 如果是编辑模式
-    if (editingFood) {
-      const updatedFoods = presetFoods.map(food => 
-        food.id === editingFood.id 
-          ? {
-              ...food,
+    try {
+      const baseUrl = getBackendBaseUrl();
+      
+      // 如果是编辑模式
+      if (editingFood) {
+        // 检查是否是后端保存的食物（id 是数字且大于 PRESET_FOODS 的最大 id）
+        const isBackendFood = editingFood.id > 100; // PRESET_FOODS 的 id 都小于 100
+        
+        if (isBackendFood) {
+          // 更新后端数据
+          const res = await fetch(`${baseUrl}/api/v1/foods/presets/${editingFood.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
               name: customFoodName.trim(),
               category: customCategory,
               calories: parseFloat(customCalories) || 0,
               protein: parseFloat(customProtein) || 0,
               carbs: parseFloat(customCarbs) || 0,
               fat: parseFloat(customFat) || 0,
-            }
-          : food
-      );
-      setPresetFoods(updatedFoods);
-      setEditingFood(null);
-    } else {
-      // 新增模式
-      const newFood: FoodItem = {
-        id: Date.now(),
-        name: customFoodName.trim(),
-        category: customCategory,
-        calories: parseFloat(customCalories) || 0,
-        protein: parseFloat(customProtein) || 0,
-        carbs: parseFloat(customCarbs) || 0,
-        fat: parseFloat(customFat) || 0,
-      };
-      setPresetFoods([newFood, ...presetFoods]);
+            }),
+          });
+          
+          if (!res.ok) throw new Error('更新失败');
+          
+          // 刷新预设食物列表
+          await fetchPresetFoods();
+        } else {
+          // 本地预设食物，只更新本地状态
+          const updatedFoods = presetFoods.map(food => 
+            food.id === editingFood.id 
+              ? {
+                  ...food,
+                  name: customFoodName.trim(),
+                  category: customCategory,
+                  calories: parseFloat(customCalories) || 0,
+                  protein: parseFloat(customProtein) || 0,
+                  carbs: parseFloat(customCarbs) || 0,
+                  fat: parseFloat(customFat) || 0,
+                }
+              : food
+          );
+          setPresetFoods(updatedFoods);
+        }
+        setEditingFood(null);
+      } else {
+        // 新增模式 - 保存到后端
+        const res = await fetch(`${baseUrl}/api/v1/foods/presets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: customFoodName.trim(),
+            category: customCategory,
+            calories: parseFloat(customCalories) || 0,
+            protein: parseFloat(customProtein) || 0,
+            carbs: parseFloat(customCarbs) || 0,
+            fat: parseFloat(customFat) || 0,
+          }),
+        });
+        
+        if (!res.ok) throw new Error('保存失败');
+        
+        // 刷新预设食物列表
+        await fetchPresetFoods();
+      }
+      
+      setCustomFoodName('');
+      setCustomCalories('');
+      setCustomProtein('');
+      setCustomCarbs('');
+      setCustomFat('');
+      setCustomCategory('staple');
+      setCustomFoodModalVisible(false);
+    } catch (error) {
+      console.error('Failed to save custom food:', error);
+      alert('保存失败，请重试');
     }
-    
-    setCustomFoodName('');
-    setCustomCalories('');
-    setCustomProtein('');
-    setCustomCarbs('');
-    setCustomFat('');
-    setCustomCategory('staple');
-    setCustomFoodModalVisible(false);
   };
 
   // 长按显示菜单
@@ -357,12 +396,34 @@ export default function FoodScreen() {
   };
 
   // 删除食物
-  const handleDeleteFood = () => {
+  const handleDeleteFood = async () => {
     if (!contextMenuFood) return;
     
-    const updatedFoods = presetFoods.filter(food => food.id !== contextMenuFood.id);
-    setPresetFoods(updatedFoods);
-    closeContextMenu();
+    try {
+      // 检查是否是后端保存的食物（id 是数字且大于 PRESET_FOODS 的最大 id）
+      const isBackendFood = contextMenuFood.id > 100; // PRESET_FOODS 的 id 都小于 100
+      
+      if (isBackendFood) {
+        const baseUrl = getBackendBaseUrl();
+        const res = await fetch(`${baseUrl}/api/v1/foods/presets/${contextMenuFood.id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!res.ok) throw new Error('删除失败');
+        
+        // 刷新预设食物列表
+        await fetchPresetFoods();
+      } else {
+        // 本地预设食物，只更新本地状态
+        const updatedFoods = presetFoods.filter(food => food.id !== contextMenuFood.id);
+        setPresetFoods(updatedFoods);
+      }
+      
+      closeContextMenu();
+    } catch (error) {
+      console.error('Failed to delete food:', error);
+      alert('删除失败，请重试');
+    }
   };
 
   const renderFoodItem = ({ item }: { item: FoodItem }) => {

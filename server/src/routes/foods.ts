@@ -25,6 +25,86 @@ router.get('/presets', async (req, res) => {
   }
 });
 
+// 创建自定义预设食物
+router.post('/presets', async (req, res) => {
+  try {
+    const { name, nameEn, category, calories, protein, carbs, fat, fiber } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: '食物名称不能为空' });
+    }
+
+    const client = getSupabaseClient();
+    
+    // 获取当前最大 ID
+    const { data: maxIdData } = await client
+      .from('preset_foods')
+      .select('id')
+      .order('id', { ascending: false })
+      .limit(1);
+    
+    const nextId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id + 1 : 1;
+    
+    const { data, error } = await client.from('preset_foods').insert({
+      id: nextId,
+      name,
+      name_en: nameEn || null,
+      category: category || 'other',
+      calories: calories || 0,
+      protein: protein || 0,
+      carbs: carbs || 0,
+      fat: fat || 0,
+      fiber: fiber || 0,
+    }).select().single();
+
+    if (error) throw error;
+    res.status(201).json(data);
+  } catch (error) {
+    console.error('创建预设食物失败:', error);
+    res.status(500).json({ error: '创建预设食物失败' });
+  }
+});
+
+// 更新预设食物
+router.put('/presets/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { name, nameEn, category, calories, protein, carbs, fat, fiber } = req.body;
+
+    const client = getSupabaseClient();
+    const { data, error } = await client.from('preset_foods').update({
+      name,
+      name_en: nameEn || null,
+      category: category || 'other',
+      calories: calories || 0,
+      protein: protein || 0,
+      carbs: carbs || 0,
+      fat: fat || 0,
+      fiber: fiber || 0,
+    }).eq('id', id).select().single();
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('更新预设食物失败:', error);
+    res.status(500).json({ error: '更新预设食物失败' });
+  }
+});
+
+// 删除预设食物
+router.delete('/presets/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const client = getSupabaseClient();
+    const { error } = await client.from('preset_foods').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (error) {
+    console.error('删除预设食物失败:', error);
+    res.status(500).json({ error: '删除预设食物失败' });
+  }
+});
+
 // 搜索预设食物
 router.get('/presets/search', async (req, res) => {
   try {
