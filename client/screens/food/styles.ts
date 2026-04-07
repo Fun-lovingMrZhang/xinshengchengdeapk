@@ -327,6 +327,11 @@ export const createStyles = (theme: Theme) => {
       borderRadius: BorderRadius.lg,
       backgroundColor: theme.primary,
       alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 50,
+    },
+    confirmBtnDisabled: {
+      opacity: 0.6,
     },
     confirmBtnText: {
       color: '#FFFFFF',

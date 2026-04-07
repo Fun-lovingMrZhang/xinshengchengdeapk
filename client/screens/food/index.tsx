@@ -11,6 +11,8 @@ import {
   Pressable,
   Dimensions,
   StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { SwipeableTabScreen } from '@/components/SwipeableTabScreen';
@@ -155,6 +157,7 @@ export default function FoodScreen() {
   const [weight, setWeight] = useState(100);
   const [selectedMealType, setSelectedMealType] = useState('breakfast');
   const [presetFoods, setPresetFoods] = useState<FoodItem[]>(PRESET_FOODS);
+  const [isAddingFood, setIsAddingFood] = useState(false);
 
   // 自定义食物相关状态
   const [customFoodModalVisible, setCustomFoodModalVisible] = useState(false);
@@ -249,6 +252,8 @@ export default function FoodScreen() {
   const handleConfirmAdd = async () => {
     if (!selectedFood) return;
 
+    setIsAddingFood(true);
+
     try {
       const today = new Date().toISOString().split('T')[0];
       const ratio = weight / 100;
@@ -268,6 +273,9 @@ export default function FoodScreen() {
       setSelectedFood(null);
     } catch (error) {
       console.error('Failed to add food record:', error);
+      Alert.alert('添加失败', '请检查网络连接后重试');
+    } finally {
+      setIsAddingFood(false);
     }
   };
 
@@ -674,8 +682,16 @@ export default function FoodScreen() {
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirmAdd}>
-                    <Text style={styles.confirmBtnText}>确认添加</Text>
+                  <TouchableOpacity 
+                    style={[styles.confirmBtn, isAddingFood && styles.confirmBtnDisabled]} 
+                    onPress={handleConfirmAdd}
+                    disabled={isAddingFood}
+                  >
+                    {isAddingFood ? (
+                      <ActivityIndicator color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.confirmBtnText}>确认添加</Text>
+                    )}
                   </TouchableOpacity>
                 </>
               )}
