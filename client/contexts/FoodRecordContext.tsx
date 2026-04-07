@@ -176,6 +176,11 @@ export function FoodRecordProvider({ children }: { children: React.ReactNode }) 
         }),
       });
       
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || '添加失败');
+      }
+      
       const newRecord: FoodRecord = await res.json();
       const today = getTodayString();
       
