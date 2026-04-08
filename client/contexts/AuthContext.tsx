@@ -21,18 +21,22 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isGuest: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
+  enterAsGuest: () => void;
   refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'auth_user';
+const GUEST_KEY = 'is_guest';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // 从本地存储恢复用户信息
@@ -42,6 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const savedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
         if (savedUser) {
           setUser(JSON.parse(savedUser));
+        }
+        const savedGuest = await AsyncStorage.getItem(GUEST_KEY);
+        if (savedGuest === 'true') {
+          setIsGuest(true);
         }
       } catch (error) {
         console.error('Failed to load user from storage:', error);
@@ -106,7 +114,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 登出
   const logout = useCallback(async () => {
     setUser(null);
+    setIsGuest(false);
     await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    await AsyncStorage.removeItem(GUEST_KEY);
+  }, []);
+
+  // 游客模式入口
+  const enterAsGuest = useCallback(() => {
+    setIsGuest(true);
+    AsyncStorage.setItem(GUEST_KEY, 'true');
   }, []);
 
   // 刷新用户信息
@@ -132,10 +148,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user || isGuest,
+        isGuest,
         login,
         register,
         logout,
+        enterAsGuest,
         refreshUser,
       }}
     >

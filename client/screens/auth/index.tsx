@@ -23,7 +23,7 @@ type AuthMode = 'login' | 'register';
 export default function AuthScreen() {
   const { theme } = useTheme();
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const { login, register } = useAuth();
+  const { login, register, enterAsGuest } = useAuth();
   const router = useSafeRouter();
 
   const [mode, setMode] = useState<AuthMode>('login');
@@ -86,7 +86,9 @@ export default function AuthScreen() {
   };
 
   const handleGuestMode = () => {
-    // 跳过登录，直接进入应用（作为游客模式）
+    // 进入游客模式
+    enterAsGuest();
+    // 跳转到首页
     router.replace('/');
   };
 
