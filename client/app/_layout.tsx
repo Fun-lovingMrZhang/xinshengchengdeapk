@@ -110,6 +110,7 @@ export default function RootLayout() {
                   }} 
                 />
               </Stack>
+              </AuthGuard>
             </ExerciseProvider>
           </FoodRecordProvider>
         </UserProvider>
