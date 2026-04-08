@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { db, schema } from '../db/index.js';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { getSupabaseClient } from '../storage/database/supabase-client.js';
 
 const router = Router();
 
@@ -10,31 +9,23 @@ const router = Router();
  */
 router.get('/', async (req, res) => {
   try {
+    const client = getSupabaseClient();
     const { date, startDate, endDate } = req.query;
 
-    let records;
+    let query = client.from('food_records').select('*');
 
     if (date) {
-      // 查询特定日期
-      records = await db
-        .select()
-        .from(schema.foodRecords)
-        .where(eq(schema.foodRecords.date, date as string));
+      query = query.eq('date', date);
     } else if (startDate && endDate) {
-      // 查询日期范围
-      records = await db
-        .select()
-        .from(schema.foodRecords)
-        .where(and(
-          gte(schema.foodRecords.date, startDate as string),
-          lte(schema.foodRecords.date, endDate as string)
-        ));
-    } else {
-      // 查询所有
-      records = await db.select().from(schema.foodRecords);
+      query = query.gte('date', startDate).lte('date', endDate);
     }
 
-    res.json(records || []);
+    query = query.order('created_at', { ascending: false });
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    res.json(data || []);
   } catch (error) {
     console.error('获取饮食记录失败:', error);
     res.status(500).json({ error: '获取饮食记录失败' });
@@ -47,17 +38,14 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const records = await db
-      .select()
-      .from(schema.foodRecords)
-      .where(eq(schema.foodRecords.id, id))
-      .limit(1);
+    const client = getSupabaseClient();
+    const { data, error } = await client.from('food_records').select('*').eq('id', id).maybeSingle();
 
-    if (!records || records.length === 0) {
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: '记录不存在' });
     }
-
-    res.json(records[0]);
+    res.json(data);
   } catch (error) {
     console.error('获取饮食记录失败:', error);
     res.status(500).json({ error: '获取饮食记录失败' });
@@ -82,23 +70,22 @@ router.post('/', async (req, res) => {
       date,
     } = req.body;
 
-    const newRecords = await db
-      .insert(schema.foodRecords)
-      .values({
-        userId: userId || 1,
-        foodName,
-        mealType: mealType || 'snack',
-        weight: weight || 100,
-        calories: calories || 0,
-        protein: protein || 0,
-        carbs: carbs || 0,
-        fat: fat || 0,
-        fiber: fiber || 0,
-        date: date || new Date().toISOString().split('T')[0],
-      })
-      .returning();
+    const client = getSupabaseClient();
+    const { data, error } = await client.from('food_records').insert({
+      user_id: userId || 1,
+      food_name: foodName,
+      meal_type: mealType || 'snack',
+      weight: weight || 100,
+      calories: calories || 0,
+      protein: protein || 0,
+      carbs: carbs || 0,
+      fat: fat || 0,
+      fiber: fiber || 0,
+      date: date || new Date().toISOString().split('T')[0],
+    }).select().single();
 
-    res.status(201).json(newRecords[0]);
+    if (error) throw error;
+    res.status(201).json(data);
   } catch (error) {
     console.error('创建饮食记录失败:', error);
     res.status(500).json({ error: '创建饮食记录失败' });
@@ -111,41 +98,32 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const {
-      userId,
-      foodName,
-      mealType,
-      weight,
-      calories,
-      protein,
-      carbs,
-      fat,
-      fiber,
-      date,
-    } = req.body;
+    const updateData = req.body;
 
-    const updatedRecords = await db
-      .update(schema.foodRecords)
-      .set({
-        userId,
-        foodName,
-        mealType,
-        weight,
-        calories,
-        protein,
-        carbs,
-        fat,
-        fiber,
-        date,
-      })
-      .where(eq(schema.foodRecords.id, id))
-      .returning();
+    // 转换 camelCase 到 snake_case
+    const snakeCaseData: Record<string, unknown> = {};
+    const mapping: Record<string, string> = {
+      userId: 'user_id',
+      foodId: 'food_id',
+      foodName: 'food_name',
+      mealType: 'meal_type',
+      recordDate: 'record_date',
+    };
 
-    if (!updatedRecords || updatedRecords.length === 0) {
+    for (const [key, value] of Object.entries(updateData)) {
+      const snakeKey = mapping[key] || key;
+      snakeCaseData[snakeKey] = value;
+    }
+    snakeCaseData.updated_at = new Date().toISOString();
+
+    const client = getSupabaseClient();
+    const { data, error } = await client.from('food_records').update(snakeCaseData).eq('id', id).select().maybeSingle();
+
+    if (error) throw error;
+    if (!data) {
       return res.status(404).json({ error: '记录不存在' });
     }
-
-    res.json(updatedRecords[0]);
+    res.json(data);
   } catch (error) {
     console.error('更新饮食记录失败:', error);
     res.status(500).json({ error: '更新饮食记录失败' });
@@ -158,9 +136,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    await db
-      .delete(schema.foodRecords)
-      .where(eq(schema.foodRecords.id, id));
+    const client = getSupabaseClient();
+    const { error } = await client.from('food_records').delete().eq('id', id);
+    if (error) throw error;
     res.json({ success: true });
   } catch (error) {
     console.error('删除饮食记录失败:', error);

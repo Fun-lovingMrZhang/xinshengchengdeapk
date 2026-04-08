@@ -45,7 +45,7 @@ export const foodRecords = pgTable('food_records', {
 export const exerciseRecords = pgTable('exercise_records', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').references(() => users.id),
-  date: varchar('date', { length: 10 }).notNull(), // YYYY-MM-DD
+  date: varchar('date', { length: 10 }).notNull(),
   exerciseName: varchar('exercise_name', { length: 100 }).notNull(),
   duration: integer('duration').notNull().default(30), // minutes
   caloriesBurned: integer('calories_burned').notNull().default(0),
@@ -80,9 +80,3 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type FoodRecord = typeof foodRecords.$inferSelect;
 export type NewFoodRecord = typeof foodRecords.$inferInsert;
-export type ExerciseRecord = typeof exerciseRecords.$inferSelect;
-export type NewExerciseRecord = typeof exerciseRecords.$inferInsert;
-export type PresetFood = typeof presetFoods.$inferSelect;
-export type NewPresetFood = typeof presetFoods.$inferInsert;
-export type PresetExercise = typeof presetExercises.$inferSelect;
-export type NewPresetExercise = typeof presetExercises.$inferInsert;

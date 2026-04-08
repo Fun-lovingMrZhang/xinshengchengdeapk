@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { db, schema } from '../db/index.js';
-import { eq } from 'drizzle-orm';
+import { getSupabaseClient } from '../storage/database/supabase-client.js';
 import crypto from 'crypto';
 
 const router = Router();
@@ -31,14 +30,16 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: '密码至少需要6个字符' });
     }
 
-    // 检查邮箱是否已被注册
-    const existingUsers = await db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.email, email))
-      .limit(1);
+    const client = getSupabaseClient();
 
-    if (existingUsers.length > 0) {
+    // 检查邮箱是否已被注册
+    const { data: existingUser } = await client
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (existingUser) {
       return res.status(400).json({ error: '该邮箱已被注册' });
     }
 
@@ -46,53 +47,53 @@ router.post('/register', async (req, res) => {
     const passwordHash = hashPassword(password);
 
     // 创建用户
-    const newUsers = await db
-      .insert(schema.users)
-      .values({
+    const { data: newUser, error: createError } = await client
+      .from('users')
+      .insert({
         name,
         email,
-        encryptedPassword: passwordHash,
+        encrypted_password: passwordHash,
         height: 170,
         weight: 70,
         age: 25,
         gender: 'male',
-        activityLevel: 'light',
+        activity_level: 'light',
         goal: 'maintain',
-        dietPattern: 'balanced',
-        targetCalories: 2000,
-        targetProtein: 150,
-        targetCarbs: 200,
-        targetFat: 67,
-        targetFiber: 25,
+        diet_pattern: 'balanced',
+        target_calories: 2000,
+        target_protein: 150,
+        target_carbs: 200,
+        target_fat: 67,
+        target_fiber: 25,
       })
-      .returning();
+      .select()
+      .single();
 
-    if (!newUsers || newUsers.length === 0) {
+    if (createError) {
+      console.error('创建用户失败:', createError);
       return res.status(500).json({ error: '注册失败，请重试' });
     }
 
-    const newUser = newUsers[0];
-
-    // 返回用户信息（不包含密码）
+    // 返回用户信息（转换字段名）
     const userResponse = {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
       height: newUser.height,
       weight: newUser.weight,
-      targetWeight: newUser.targetWeight,
+      target_weight: newUser.target_weight,
       age: newUser.age,
       gender: newUser.gender,
-      bodyFatRate: newUser.bodyFatRate,
-      dailyFiber: newUser.dailyFiber,
-      activityLevel: newUser.activityLevel,
+      body_fat_rate: newUser.body_fat_rate,
+      daily_fiber: newUser.daily_fiber,
+      activity_level: newUser.activity_level,
       goal: newUser.goal,
-      dietPattern: newUser.dietPattern,
-      targetCalories: newUser.targetCalories,
-      targetProtein: newUser.targetProtein,
-      targetCarbs: newUser.targetCarbs,
-      targetFat: newUser.targetFat,
-      targetFiber: newUser.targetFiber,
+      diet_pattern: newUser.diet_pattern,
+      target_calories: newUser.target_calories,
+      target_protein: newUser.target_protein,
+      target_carbs: newUser.target_carbs,
+      target_fat: newUser.target_fat,
+      target_fiber: newUser.target_fiber,
     };
 
     res.status(201).json({
@@ -115,45 +116,50 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: '请填写邮箱和密码' });
     }
 
-    // 查找用户
-    const users = await db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.email, email))
-      .limit(1);
+    const client = getSupabaseClient();
 
-    if (!users || users.length === 0) {
-      return res.status(401).json({ error: '邮箱或密码错误' });
+    // 查找用户
+    const { data: user, error } = await client
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('查询用户失败:', error);
+      return res.status(500).json({ error: '登录失败，请重试' });
     }
 
-    const user = users[0];
+    if (!user) {
+      return res.status(401).json({ error: '邮箱或密码错误' });
+    }
 
     // 验证密码
     const passwordHash = hashPassword(password);
-    if (user.encryptedPassword !== passwordHash) {
+    if (user.encrypted_password !== passwordHash) {
       return res.status(401).json({ error: '邮箱或密码错误' });
     }
 
-    // 返回用户信息（不包含密码）
+    // 返回用户信息（转换字段名）
     const userResponse = {
       id: user.id,
       name: user.name,
       email: user.email,
       height: user.height,
       weight: user.weight,
-      targetWeight: user.targetWeight,
+      target_weight: user.target_weight,
       age: user.age,
       gender: user.gender,
-      bodyFatRate: user.bodyFatRate,
-      dailyFiber: user.dailyFiber,
-      activityLevel: user.activityLevel,
+      body_fat_rate: user.body_fat_rate,
+      daily_fiber: user.daily_fiber,
+      activity_level: user.activity_level,
       goal: user.goal,
-      dietPattern: user.dietPattern,
-      targetCalories: user.targetCalories,
-      targetProtein: user.targetProtein,
-      targetCarbs: user.targetCarbs,
-      targetFat: user.targetFat,
-      targetFiber: user.targetFiber,
+      diet_pattern: user.diet_pattern,
+      target_calories: user.target_calories,
+      target_protein: user.target_protein,
+      target_carbs: user.target_carbs,
+      target_fat: user.target_fat,
+      target_fiber: user.target_fiber,
     };
 
     res.json({
@@ -169,45 +175,43 @@ router.post('/login', async (req, res) => {
 // 获取当前用户信息
 router.get('/me', async (req, res) => {
   try {
-    // 从 query 或 header 获取用户 ID
     const userId = req.query.userId || req.headers['x-user-id'];
 
     if (!userId) {
       return res.status(401).json({ error: '未登录' });
     }
 
-    const users = await db
-      .select()
-      .from(schema.users)
-      .where(eq(schema.users.id, parseInt(userId as string)))
-      .limit(1);
+    const client = getSupabaseClient();
+    const { data: user, error } = await client
+      .from('users')
+      .select('*')
+      .eq('id', parseInt(userId as string))
+      .maybeSingle();
 
-    if (!users || users.length === 0) {
+    if (error || !user) {
       return res.status(401).json({ error: '用户不存在' });
     }
 
-    const user = users[0];
-
-    // 返回用户信息（不包含密码）
+    // 返回用户信息（转换字段名）
     const userResponse = {
       id: user.id,
       name: user.name,
       email: user.email,
       height: user.height,
       weight: user.weight,
-      targetWeight: user.targetWeight,
+      target_weight: user.target_weight,
       age: user.age,
       gender: user.gender,
-      bodyFatRate: user.bodyFatRate,
-      dailyFiber: user.dailyFiber,
-      activityLevel: user.activityLevel,
+      body_fat_rate: user.body_fat_rate,
+      daily_fiber: user.daily_fiber,
+      activity_level: user.activity_level,
       goal: user.goal,
-      dietPattern: user.dietPattern,
-      targetCalories: user.targetCalories,
-      targetProtein: user.targetProtein,
-      targetCarbs: user.targetCarbs,
-      targetFat: user.targetFat,
-      targetFiber: user.targetFiber,
+      diet_pattern: user.diet_pattern,
+      target_calories: user.target_calories,
+      target_protein: user.target_protein,
+      target_carbs: user.target_carbs,
+      target_fat: user.target_fat,
+      target_fiber: user.target_fiber,
     };
 
     res.json(userResponse);

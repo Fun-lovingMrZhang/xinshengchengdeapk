@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { db, schema } from '../db/index.js';
-import { eq, like, sql } from 'drizzle-orm';
+import { getSupabaseClient } from '../storage/database/supabase-client.js';
 
 const router = Router();
 
@@ -10,19 +9,16 @@ const router = Router();
 router.get('/presets', async (req, res) => {
   try {
     const { category } = req.query;
+    const client = getSupabaseClient();
 
-    let query = db.select().from(schema.presetFoods);
-    
+    let query = client.from('preset_foods').select('*');
     if (category) {
-      const foods = await db
-        .select()
-        .from(schema.presetFoods)
-        .where(eq(schema.presetFoods.category, category as string));
-      return res.json(foods);
+      query = query.eq('category', category as string);
     }
 
-    const foods = await query;
-    res.json(foods);
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json(data);
   } catch (error) {
     console.error('获取预设食物失败:', error);
     res.status(500).json({ error: '获取预设食物失败' });
@@ -32,27 +28,37 @@ router.get('/presets', async (req, res) => {
 // 创建自定义预设食物
 router.post('/presets', async (req, res) => {
   try {
-    const { name, nameEn, category, calories, protein, carbs, fat, fiber } = req.body;
+    const { name, name_en, category, calories, protein, carbs, fat, fiber } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: '食物名称不能为空' });
     }
 
-    const newFoods = await db
-      .insert(schema.presetFoods)
-      .values({
-        name,
-        nameEn,
-        category: category || 'other',
-        calories: calories || 0,
-        protein: protein || 0,
-        carbs: carbs || 0,
-        fat: fat || 0,
-        fiber,
-      })
-      .returning();
+    const client = getSupabaseClient();
 
-    res.status(201).json(newFoods[0]);
+    // 获取当前最大 ID
+    const { data: maxIdData } = await client
+      .from('preset_foods')
+      .select('id')
+      .order('id', { ascending: false })
+      .limit(1);
+
+    const nextId = maxIdData && maxIdData.length > 0 ? maxIdData[0].id + 1 : 1;
+
+    const { data, error } = await client.from('preset_foods').insert({
+      id: nextId,
+      name,
+      name_en,
+      category: category || 'other',
+      calories: calories || 0,
+      protein: protein || 0,
+      carbs: carbs || 0,
+      fat: fat || 0,
+      fiber,
+    }).select().single();
+
+    if (error) throw error;
+    res.status(201).json(data);
   } catch (error) {
     console.error('创建预设食物失败:', error);
     res.status(500).json({ error: '创建预设食物失败' });
@@ -68,14 +74,15 @@ router.get('/search', async (req, res) => {
       return res.status(400).json({ error: '请输入搜索关键词' });
     }
 
-    const searchTerm = `%${q}%`;
-    const foods = await db
-      .select()
-      .from(schema.presetFoods)
-      .where(like(schema.presetFoods.name, searchTerm))
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('preset_foods')
+      .select('*')
+      .ilike('name', `%${q}%`)
       .limit(50);
 
-    res.json(foods);
+    if (error) throw error;
+    res.json(data);
   } catch (error) {
     console.error('搜索食物失败:', error);
     res.status(500).json({ error: '搜索食物失败' });
