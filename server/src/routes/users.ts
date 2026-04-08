@@ -1,39 +1,14 @@
 import { Router } from 'express';
-import { getSupabaseClient } from '../storage/database/supabase-client.js';
+import { db, schema } from '../db/index.js';
+import { eq } from 'drizzle-orm';
 
 const router = Router();
-
-// 字段映射：camelCase -> snake_case
-const camelToSnake: Record<string, string> = {
-  bodyFatRate: 'body_fat_rate',
-  dailyFiber: 'daily_fiber',
-  activityLevel: 'activity_level',
-  dietPattern: 'diet_pattern',
-  targetCalories: 'target_calories',
-  targetProtein: 'target_protein',
-  targetCarbs: 'target_carbs',
-  targetFat: 'target_fat',
-  targetFiber: 'target_fiber',
-  targetWeight: 'target_weight',
-};
-
-// 转换字段名
-function toSnakeCase(data: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data)) {
-    const snakeKey = camelToSnake[key] || key;
-    result[snakeKey] = value;
-  }
-  return result;
-}
 
 // 获取所有用户
 router.get('/', async (req, res) => {
   try {
-    const client = getSupabaseClient();
-    const { data, error } = await client.from('users').select('*');
-    if (error) throw error;
-    res.json(data);
+    const users = await db.select().from(schema.users);
+    res.json(users);
   } catch (error) {
     console.error('获取用户列表失败:', error);
     res.status(500).json({ error: '获取用户列表失败' });
@@ -44,13 +19,17 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const client = getSupabaseClient();
-    const { data, error } = await client.from('users').select('*').eq('id', id).maybeSingle();
-    if (error) throw error;
-    if (!data) {
+    const users = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+
+    if (!users || users.length === 0) {
       return res.status(404).json({ error: '用户不存在' });
     }
-    res.json(data);
+
+    res.json(users[0]);
   } catch (error) {
     console.error('获取用户失败:', error);
     res.status(500).json({ error: '获取用户失败' });
@@ -60,14 +39,52 @@ router.get('/:id', async (req, res) => {
 // 创建用户
 router.post('/', async (req, res) => {
   try {
-    const client = getSupabaseClient();
-    const snakeCaseData = toSnakeCase(req.body);
-    snakeCaseData.updated_at = new Date().toISOString();
-    
-    const { data, error } = await client.from('users').insert(snakeCaseData).select().single();
+    const {
+      name,
+      email,
+      encryptedPassword,
+      height,
+      weight,
+      targetWeight,
+      age,
+      gender,
+      bodyFatRate,
+      dailyFiber,
+      activityLevel,
+      goal,
+      dietPattern,
+      targetCalories,
+      targetProtein,
+      targetCarbs,
+      targetFat,
+      targetFiber,
+    } = req.body;
 
-    if (error) throw error;
-    res.status(201).json(data);
+    const newUsers = await db
+      .insert(schema.users)
+      .values({
+        name,
+        email,
+        encryptedPassword,
+        height,
+        weight,
+        targetWeight,
+        age,
+        gender,
+        bodyFatRate,
+        dailyFiber,
+        activityLevel,
+        goal,
+        dietPattern,
+        targetCalories,
+        targetProtein,
+        targetCarbs,
+        targetFat,
+        targetFiber,
+      })
+      .returning();
+
+    res.status(201).json(newUsers[0]);
   } catch (error) {
     console.error('创建用户失败:', error);
     res.status(500).json({ error: '创建用户失败' });
@@ -78,17 +95,57 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const snakeCaseData = toSnakeCase(req.body);
-    snakeCaseData.updated_at = new Date().toISOString();
+    const {
+      name,
+      email,
+      encryptedPassword,
+      height,
+      weight,
+      targetWeight,
+      age,
+      gender,
+      bodyFatRate,
+      dailyFiber,
+      activityLevel,
+      goal,
+      dietPattern,
+      targetCalories,
+      targetProtein,
+      targetCarbs,
+      targetFat,
+      targetFiber,
+    } = req.body;
 
-    const client = getSupabaseClient();
-    const { data, error } = await client.from('users').update(snakeCaseData).eq('id', id).select().maybeSingle();
+    const updatedUsers = await db
+      .update(schema.users)
+      .set({
+        name,
+        email,
+        encryptedPassword,
+        height,
+        weight,
+        targetWeight,
+        age,
+        gender,
+        bodyFatRate,
+        dailyFiber,
+        activityLevel,
+        goal,
+        dietPattern,
+        targetCalories,
+        targetProtein,
+        targetCarbs,
+        targetFat,
+        targetFiber,
+      })
+      .where(eq(schema.users.id, id))
+      .returning();
 
-    if (error) throw error;
-    if (!data) {
+    if (!updatedUsers || updatedUsers.length === 0) {
       return res.status(404).json({ error: '用户不存在' });
     }
-    res.json(data);
+
+    res.json(updatedUsers[0]);
   } catch (error) {
     console.error('更新用户失败:', error);
     res.status(500).json({ error: '更新用户失败' });
@@ -99,17 +156,19 @@ router.put('/:id', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const snakeCaseData = toSnakeCase(req.body);
-    snakeCaseData.updated_at = new Date().toISOString();
+    const updateData = req.body;
 
-    const client = getSupabaseClient();
-    const { data, error } = await client.from('users').update(snakeCaseData).eq('id', id).select().maybeSingle();
+    const updatedUsers = await db
+      .update(schema.users)
+      .set(updateData)
+      .where(eq(schema.users.id, id))
+      .returning();
 
-    if (error) throw error;
-    if (!data) {
+    if (!updatedUsers || updatedUsers.length === 0) {
       return res.status(404).json({ error: '用户不存在' });
     }
-    res.json(data);
+
+    res.json(updatedUsers[0]);
   } catch (error) {
     console.error('更新用户失败:', error);
     res.status(500).json({ error: '更新用户失败' });
@@ -120,9 +179,9 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const client = getSupabaseClient();
-    const { error } = await client.from('users').delete().eq('id', id);
-    if (error) throw error;
+    await db
+      .delete(schema.users)
+      .where(eq(schema.users.id, id));
     res.json({ success: true });
   } catch (error) {
     console.error('删除用户失败:', error);

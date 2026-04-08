@@ -4,6 +4,8 @@ import { pgTable, serial, text, integer, real, timestamp, varchar } from 'drizzl
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  encryptedPassword: varchar('encrypted_password', { length: 64 }).notNull(),
   height: real('height').notNull().default(170), // cm
   weight: real('weight').notNull().default(70), // kg
   targetWeight: real('target_weight').default(60), // 目标体重 kg
