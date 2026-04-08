@@ -87,8 +87,8 @@ export async function searchPresetFoods(query: string): Promise<PresetFood[]> {
  */
 export async function getFoodRecords(date: string, userId?: number): Promise<FoodRecord[]> {
   const url = userId
-    ? `${BASE_URL}/api/v1/foods/records?date=${date}&userId=${userId}`
-    : `${BASE_URL}/api/v1/foods/records?date=${date}`;
+    ? `${BASE_URL}/api/v1/food-records?date=${date}&userId=${userId}`
+    : `${BASE_URL}/api/v1/food-records?date=${date}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('获取食物记录失败');
   return response.json();
@@ -98,7 +98,7 @@ export async function getFoodRecords(date: string, userId?: number): Promise<Foo
  * 创建食物记录
  */
 export async function createFoodRecord(data: Partial<FoodRecord>): Promise<FoodRecord> {
-  const response = await fetch(`${BASE_URL}/api/v1/foods/records`, {
+  const response = await fetch(`${BASE_URL}/api/v1/food-records`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -111,7 +111,7 @@ export async function createFoodRecord(data: Partial<FoodRecord>): Promise<FoodR
  * 删除食物记录
  */
 export async function deleteFoodRecord(id: number): Promise<void> {
-  const response = await fetch(`${BASE_URL}/api/v1/foods/records/${id}`, {
+  const response = await fetch(`${BASE_URL}/api/v1/food-records/${id}`, {
     method: 'DELETE',
   });
   if (!response.ok) throw new Error('删除食物记录失败');
