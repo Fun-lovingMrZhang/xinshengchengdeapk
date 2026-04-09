@@ -5,6 +5,8 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  encrypted_password VARCHAR(255) NOT NULL,
   height REAL NOT NULL DEFAULT 170,
   weight REAL NOT NULL DEFAULT 70,
   target_weight REAL DEFAULT 60,
@@ -75,8 +77,8 @@ CREATE TABLE IF NOT EXISTS preset_exercises (
 );
 
 -- 6. 插入默认用户
-INSERT INTO users (name, height, weight, target_weight, age, gender, activity_level, goal, diet_pattern, target_calories, target_protein, target_carbs, target_fat)
-VALUES ('用户', 170, 70, 65, 25, 'male', 'moderate', 'lose', 'balanced', 1800, 120, 180, 60)
+INSERT INTO users (name, email, encrypted_password, height, weight, target_weight, age, gender, activity_level, goal, diet_pattern, target_calories, target_protein, target_carbs, target_fat)
+VALUES ('用户', 'demo@example.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 170, 70, 65, 25, 'male', 'moderate', 'lose', 'balanced', 1800, 120, 180, 60)
 ON CONFLICT DO NOTHING;
 
 -- 7. 插入预设食物数据
