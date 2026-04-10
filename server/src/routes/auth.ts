@@ -57,7 +57,7 @@ router.post('/register', async (req, res) => {
         weight: 70,
         age: 25,
         gender: 'male',
-        activity_level: 'light',
+        activity_level: 'moderate',
         goal: 'maintain',
         diet_pattern: 'balanced',
         target_calories: 2000,
