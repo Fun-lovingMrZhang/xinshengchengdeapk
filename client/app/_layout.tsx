@@ -109,6 +109,34 @@ export default function RootLayout() {
                     animation: 'slide_from_right',
                   }} 
                 />
+                <Stack.Screen 
+                  name="settings" 
+                  options={{ 
+                    presentation: 'card',
+                    animation: 'slide_from_right',
+                  }} 
+                />
+                <Stack.Screen 
+                  name="membership" 
+                  options={{ 
+                    presentation: 'card',
+                    animation: 'slide_from_right',
+                  }} 
+                />
+                <Stack.Screen 
+                  name="help" 
+                  options={{ 
+                    presentation: 'card',
+                    animation: 'slide_from_right',
+                  }} 
+                />
+                <Stack.Screen 
+                  name="about" 
+                  options={{ 
+                    presentation: 'card',
+                    animation: 'slide_from_right',
+                  }} 
+                />
               </Stack>
               </AuthGuard>
             </ExerciseProvider>

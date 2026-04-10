@@ -221,4 +221,62 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// 修改密码接口
+router.post('/change-password', async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    // 验证必填字段
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: '请填写所有必填字段' });
+    }
+
+    // 验证新密码长度
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: '新密码至少需要6个字符' });
+    }
+
+    const client = getSupabaseClient();
+
+    // 查找用户
+    const { data: user, error } = await client
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('查询用户失败:', error);
+      return res.status(500).json({ error: '修改密码失败，请重试' });
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: '用户不存在' });
+    }
+
+    // 验证旧密码
+    const oldPasswordHash = hashPassword(oldPassword);
+    if (user.encrypted_password !== oldPasswordHash) {
+      return res.status(401).json({ error: '旧密码错误' });
+    }
+
+    // 更新密码
+    const newPasswordHash = hashPassword(newPassword);
+    const { error: updateError } = await client
+      .from('users')
+      .update({ encrypted_password: newPasswordHash })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('更新密码失败:', updateError);
+      return res.status(500).json({ error: '修改密码失败，请重试' });
+    }
+
+    res.json({ message: '密码修改成功' });
+  } catch (error) {
+    console.error('修改密码失败:', error);
+    res.status(500).json({ error: '修改密码失败，请重试' });
+  }
+});
+
 export default router;

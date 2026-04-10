@@ -399,10 +399,10 @@ export default function ProfileScreen() {
   };
 
   const menuItems = [
-    { icon: 'gear', label: '设置', color: '#6B7280', onPress: () => {} },
-    { icon: 'crown', label: '会员中心', color: '#F59E0B', onPress: () => {} },
-    { icon: 'circle-question', label: '帮助与反馈', color: '#3B82F6', onPress: () => {} },
-    { icon: 'info-circle', label: '关于我们', color: '#8B5CF6', onPress: () => {} },
+    { icon: 'gear', label: '设置', color: '#6B7280', onPress: () => router.push('/settings') },
+    { icon: 'crown', label: '会员中心', color: '#F59E0B', onPress: () => router.push('/membership') },
+    { icon: 'circle-question', label: '帮助与反馈', color: '#3B82F6', onPress: () => router.push('/help') },
+    { icon: 'info-circle', label: '关于我们', color: '#8B5CF6', onPress: () => router.push('/about') },
     // 登录/登出按钮
     isAuthenticated
       ? { icon: 'right-from-bracket', label: '退出登录', color: '#EF4444', onPress: handleLogout }
